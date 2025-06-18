@@ -1,0 +1,88 @@
+@model Task_Analyzer.Models.TodoTask
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+<section class="py-4">
+    <div class="container">
+        @* Form Validations  *@
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @TempData["Error"]
+            </div>
+        }
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success" role="alert">
+                @TempData["Success"]
+            </div>
+        }
+        @* Page Title *@
+        <div class="d-flex justify-content-between mt-4">
+            <h3 class="fw-bold">Create New Task</h3>
+            <a class="btn btn-outline-dark" asp-controller="Task" asp-action="Index">
+                Go Back
+            </a>
+        </div>
+        @* Main Content  *@
+        <div class="d-flex flex-column-reverse flex-md-row mt-4 align-items-center">
+            <form method="post" class="w-100 d-flex flex-column gap-4" asp-controller="Task" asp-action="Create">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                
+                @* Title *@
+                <div>
+                    <label asp-for="Title" class="form-label">Task Title <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" asp-for="Title" required>
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                    <div class="form-text">Enter new task title</div>
+                </div>
+                @* Description *@
+                <div>
+                    <label asp-for="Description" class="form-label">Task Description <span
+                            class="text-danger">*</span></label>
+                    <textarea type="text" class="form-control" asp-for="Description" required></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                    <div class="form-text">Enter new task description.</div>
+                </div>
+                @* Due Date *@
+                <div>
+                    <label asp-for="DueDate" class="form-label">Task Due Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" asp-for="DueDate" min="@DateTime.Today.ToString("yyyy-MM-dd")" required>
+                    <span asp-validation-for="DueDate" class="text-danger"></span>
+                    <div class="form-text">Enter task due date (must be today or a future date).</div>
+                </div>
+                @* Priority *@
+                <div>
+                    <label asp-for="Priority" class="form-label">Task Priority <span
+                            class="text-danger">*</span></label>
+                    <select class="form-select" asp-for="Priority" required>
+                        <option hidden>Select Task Priority</option>
+                        <option value="1">1 - Low</option>
+                        <option value="2">2 - Medium-Low</option>
+                        <option value="3">3 - Medium</option>
+                        <option value="4">4 - Medium-High</option>
+                        <option value="5">5 - High</option>
+                    </select>
+                    <span asp-validation-for="Priority" class="text-danger"></span>
+                    <div class="form-text">Select task priority (1-Low to 5-High).</div>
+                </div>
+                @* Button *@
+                <div>
+                    <button type="submit" class="btn btn-dark">Submit</button>
+                </div>
+            </form>
+            <div class="w-100">
+                <div class="img-container banner">
+                    <img src="~/images/banner.png" alt="Alternate Text" />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,74 @@
+@model IEnumerable<Task_Analyzer.Models.TodoTask>
+
+@{
+    ViewData["Title"] = "User Tasks";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Tasks for @ViewBag.UserName</h2>
+            <a asp-action="Index" class="btn btn-light">Back to Admin Dashboard</a>
+        </div>
+        <div class="card-body">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info">
+                    This user has no tasks yet.
+                </div>
+            }
+            else
+            {
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Created</th>
+                            <th>Due Date</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var task in Model)
+                        {
+                            <tr>
+                                <td>@task.Title</td>
+                                <td>@(task.Description.Length > 50 ? task.Description.Substring(0, 47) + "..." : task.Description)</td>
+                                <td>@task.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                <td>@task.DueDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <span class="badge bg-@(task.Priority > 3 ? "danger" : (task.Priority > 1 ? "warning" : "success"))">
+                                        @task.Priority
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (task.IsCompleted)
+                                    {
+                                        <span class="badge bg-success">Completed</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning">Pending</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a asp-action="EditTask" asp-route-id="@task.Id" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-pencil"></i> Edit
+                                        </a>
+                                        <a asp-action="DeleteTask" asp-route-id="@task.Id" class="btn btn-sm btn-danger">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>

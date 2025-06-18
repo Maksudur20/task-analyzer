@@ -1,0 +1,197 @@
+@model IEnumerable<Task_Analyzer.Models.TodoTask>
+@{
+    ViewData["Title"] = "Home";
+    ViewData["Placeholder"] = "Completed";
+}
+
+<section class="py-4">
+    <div class="container">
+        @* Dashboard  *@
+        <div class="d-flex flex-column-reverse flex-md-row gap-4">
+            @* Notification  *@
+            <div class="border rounded w-100 p-4">
+                <h4 class="fw-bold border-bottom pb-3">Notifications</h4>
+                <div class="pt-2">
+                    @if (ViewBag.seriousTasks.Count == 0)
+                    {
+                        <div class="alert alert-success m-0" role="alert">
+                            No tasks pending today! Enjoy your day.
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var obj in ViewBag.seriousTasks)
+                        {
+                            DateTime today = DateTime.Today;
+                            TimeSpan difference = obj.DueDate - today;
+                            int dayGap = (int)difference.TotalDays;
+                            string msg = "Due in " + dayGap + " days";
+                            if (dayGap == 1) msg = "Due in " + dayGap + " day";
+                            else if (dayGap == 0) msg = "Due Today";
+
+                            <div class="alert alert-danger m-0" role="alert">
+                                @obj.Title is pending. @msg.
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+            @* Summary  *@
+            <div class="border rounded w-100 p-4">
+                <h4 class="fw-bold border-bottom pb-3">Summary</h4>
+                <div class="chart-container">
+                    <canvas id="summaryChart"></canvas>
+                </div>
+                <div class="d-flex flex-wrap justify-content-between gap-4 mt-4">
+                    <div class="text-center">
+                        <span class="fs-4 fw-bold">@ViewBag.total</span>
+                        <p class="text-muted">Total Task Created</p>
+                    </div>
+                    <div class="text-center">
+                        <span class="fs-4 fw-bold">@ViewBag.completed</span>
+                        <p class="text-muted">Total Task Completed</p>
+                    </div>
+                    <div class="text-center">
+                        <span class="fs-4 fw-bold">@ViewBag.overdue</span>
+                        <p class="text-muted">Total Task Overdue</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @* Page Title *@
+        <div class="d-flex justify-content-between mt-4">
+            <h3 class="fw-bold">Tasks</h3>
+            <a class="btn btn-dark" asp-controller="Task" asp-action="Create">
+                Add New Task
+            </a>
+        </div>
+        @* All Tasks *@
+        <div class="all-tasks mt-4 px-2">
+            @foreach (var obj in Model)
+            {
+                DateTime today = DateTime.Today;
+                TimeSpan difference = obj.DueDate - today;
+                int dayGap = (int)difference.TotalDays;
+                string msg = "Due in " + dayGap + " days";
+                if (dayGap == 1) msg = "Due in " + dayGap + " day";
+                else if (dayGap == 0) msg = "Due Today";
+
+                @* Card *@
+                <div class="task-card">
+                    @* Card Header *@
+                    <div class="task-card-header">
+                        <h5 class="task-title mb-0">@obj.Title</h5>
+                        @{
+                            string dueDateClass = "due-date";
+                            if (dayGap <= 0 && !obj.IsCompleted) {
+                                dueDateClass += " due-today";
+                            } else if (dayGap < 0) {
+                                dueDateClass += " overdue";
+                            }
+                        }
+                        <span class="@dueDateClass">
+                            <i class="bi bi-calendar-event me-1"></i>
+                            @if (!obj.IsCompleted)
+                            {
+                                @msg
+                            }
+                            else
+                            {
+                                @ViewData["Placeholder"]
+                            }
+                        </span>
+                    </div>
+                    @* Card Body *@
+                    <div class="task-card-body">
+                        <p class="task-description">@obj.Description</p>
+                    </div>
+                    @* Card Footer *@
+                    <div class="task-card-footer">
+                        <div class="d-flex align-items-center gap-3">
+                            @{
+                                string priorityClass = "priority-1";
+                                if (obj.Priority == 1) { priorityClass = "priority-1"; }
+                                else if (obj.Priority == 2) { priorityClass = "priority-2"; }
+                                else if (obj.Priority == 3) { priorityClass = "priority-3"; }
+                                else if (obj.Priority == 4) { priorityClass = "priority-4"; }
+                                else if (obj.Priority == 5) { priorityClass = "priority-5"; }
+                            }
+                            <div class="priority-badge @priorityClass">
+                                <i class="bi bi-flag-fill me-1"></i>
+                                <span>Priority @obj.Priority</span>
+                            </div>
+                            
+                            @if (obj.IsCompleted)
+                            {
+                                <div class="status-badge completed">
+                                    <i class="bi bi-check-circle-fill me-1"></i>
+                                    <span>Completed</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="status-badge pending">
+                                    <i class="bi bi-hourglass-split me-1"></i>
+                                    <span>Pending</span>
+                                </div>
+                            }
+                        </div>
+                        
+                        <div class="task-actions">
+                            @if (!obj.IsCompleted)
+                            {
+                                <a asp-action="UpdateStatus" asp-route-id="@obj.Id" class="action-btn complete-btn">
+                                    <i class="bi bi-check-lg"></i>
+                                </a>
+                            }
+                            <a asp-action="Edit" asp-route-id="@obj.Id" class="action-btn edit-btn">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@obj.Id" class="action-btn delete-btn">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</section>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(() => {
+            const ctx = document.getElementById('summaryChart');
+
+            const data = {
+                labels: [
+                    'Completed',
+                    'Pending',
+                    'Overdue'
+                ],
+                datasets: [{
+                    label: 'Task Statistics',
+                    data: [@ViewBag.completed, @ViewBag.pending, @ViewBag.overdue],
+                    backgroundColor: [
+                        'black',
+                        'gray',
+                        'brown'
+                    ],
+                    hoverOffset: 4
+                }]
+            };
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    width: 400, // Width of the chart
+                    height: 300 // Height of the chart
+                }
+            });
+
+        });
+    </script>
+}

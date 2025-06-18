@@ -1,0 +1,22 @@
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3 text-center">
+            <h1 class="display-4">Welcome to Task Analyzer</h1>
+            <p class="lead">Your personal task management solution</p>
+            
+            <div class="mt-5">
+                <a asp-controller="Task" asp-action="Index" class="btn btn-primary btn-lg mx-2">My Tasks</a>
+                <a asp-controller="Home" asp-action="Privacy" class="btn btn-outline-secondary btn-lg mx-2">Privacy</a>
+            </div>
+            
+            <div class="mt-5">
+                <p>Organize, track, and complete your tasks efficiently with Task Analyzer.</p>
+                <p>Sign in to manage your personal tasks or register for a new account.</p>
+            </div>
+        </div>
+    </div>
+</div>
