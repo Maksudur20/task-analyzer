@@ -256,4 +256,4 @@ For questions or support, open an issue or contact the maintainer at [20maksudur
 - Icons from [Font Awesome](https://fontawesome.com/)
 - Entity Framework Core for data access
 - Identity Framework for authentication
-- Developed by [Maksudur Rahman](https://github.com/Maksudur20)
+- Developed by [Maksudur Rahman](https://github.com/Maksudur20)Database issue resolved - 06/19/2025 00:06:16
